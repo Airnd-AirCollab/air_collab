@@ -1,0 +1,809 @@
+import React, { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { X } from 'lucide-react';
+
+interface SignupStep3Props {
+  formData: {
+    experienceYears: string;
+    primaryResearchArea: string;
+    secondaryResearchArea: string;
+    keywords: string[];
+    researchRoles: string[];
+    specializationKeywords: string[];
+    whatIHave: string[];
+    whatINeed: string[];
+  };
+  onChange: (field: string, value: string | string[]) => void;
+  onFinish: () => void;
+  onBack: () => void;
+  loading?: boolean;
+}
+
+const SignupStep3: React.FC<SignupStep3Props> = ({ formData, onChange, onFinish, onBack, loading }) => {
+  const [selectedKeyword, setSelectedKeyword] = useState('');
+  const [selectedRole, setSelectedRole] = useState('');
+  const [selectedSpecialization, setSelectedSpecialization] = useState('');
+  const [selectedWhatIHave, setSelectedWhatIHave] = useState('');
+  const [selectedWhatINeed, setSelectedWhatINeed] = useState('');
+  const [customPrimaryArea, setCustomPrimaryArea] = useState('');
+  const [customSecondaryArea, setCustomSecondaryArea] = useState('');
+  const [customSpecialization, setCustomSpecialization] = useState('');
+  const [customWhatIHave, setCustomWhatIHave] = useState('');
+  const [customWhatINeed, setCustomWhatINeed] = useState('');
+  const [showCustomPrimary, setShowCustomPrimary] = useState(false);
+  const [showCustomSecondary, setShowCustomSecondary] = useState(false);
+  const [showCustomSpecialization, setShowCustomSpecialization] = useState(false);
+  const [showCustomWhatIHave, setShowCustomWhatIHave] = useState(false);
+  const [showCustomWhatINeed, setShowCustomWhatINeed] = useState(false);
+
+  const experienceOptions = [
+    { value: '<5', label: 'Less than 5 years' },
+    { value: '5-10', label: '5-10 years' },
+    { value: '10-20', label: '10-20 years' },
+    { value: '>20', label: 'More than 20 years' }
+  ];
+
+  const researchAreas = [
+'Addiction Psychiatry',
+'Adolescent and Youth Health',
+'Aerospace Engineering',
+'Aging and Geriatric Health',
+'Aging & Regeneration',
+'Agrobiodiversity',
+'Alzheimer\'s Disease and Dementia',
+'Anatomy',
+'Arts',
+'Artificial Intelligence in Medicine',
+'Autism Spectrum Disorder (ASD)',
+'Behavioral Neurology',
+'Bipolar Disorder',
+'Biodiversity',
+'Biofabrication',
+'Biology',
+'Biochemical Engineering',
+'Biomedical Ethics / Bioethics',
+'Biomarkers',
+'Biomaterials',
+'Biomaterials Science',
+'Bioprinting',
+'Brain Tumors (e.g., Glioblastoma)',
+'Breast Cancer',
+'Business',
+'Cancer Biology',
+'Cardiology (Heart)',
+'Cardiovascular Disease',
+'Cell-Based Therapies',
+'Cellular Reprogramming',
+'Chemistry',
+'Child and Adolescent Psychiatry',
+'Chronic Disease Management',
+'Chronic Obstructive Pulmonary Disease',
+'Civil Engineering',
+'Clinical Nutrition',
+'Clinical Regenerative Medicine',
+'Cystic Fibrosis',
+'Cybersecurity',
+'Colorectal Cancer',
+'Colorectal Surgery',
+'Communication',
+'Community Health Nursing',
+'Community Nutrition',
+'Complementary and Alternative Medicine (CAM)',
+'Computer Science',
+'Consultation-Liaison Psychiatry',
+'Conservation & Applied Biodiversity',
+'Critical Care Nursing',
+'Cultural Studies',
+'Cytopathology',
+'Depression and Anxiety Disorders',
+'Dermatopathology',
+'Diabetes',
+'Digital Health / eHealth / mHealth',
+'Disaster and Emergency Preparedness',
+'Eating Behavior',
+'Ecosystem Diversity',
+'Education',
+'Electrical Engineering',
+'Electrophysiology',
+'Endodontics',
+'Endocrinology (Hormones)',
+'Environmental Engineering',
+'Environmental Health',
+'Epidemiology',
+'Epilepsy Research',
+'Epileptology',
+'Evidence-Based Practice',
+'Food Policy',
+'Food Security',
+'Food Science',
+'Forensic Pathology',
+'Forensic Psychiatry',
+'Functional Foods & Nutraceuticals',
+'Gastroenterology (Digestive System)',
+'Gender and Women\'s Health',
+'Gene Therapy',
+'Genetics',
+'Genetic Diversity',
+'Genome Editing',
+'Genomics',
+'Geriatric Medicine',
+'Geriatric Psychiatry',
+'Geriatrics and Aging Research',
+'Gerontological Nutrition',
+'Global Health',
+'Global Nutrition',
+'Gynecologic Oncology',
+'Health Communication and Literacy',
+'Health Equity / Social Determinants of Health',
+'Health Informatics',
+'Health Policy and Management',
+'Health Promotion and Education',
+'Health Workforce Research',
+'Healthcare Delivery Models',
+'Hematologic Disorders',
+'Hematology (Blood)',
+'Hematopathology',
+'History',
+'Humanities',
+'Huntington\'s Disease',
+'Hypertension',
+'Immunology',
+'Immune Engineering',
+'Immunomodulation',
+'Immunotherapy',
+'Infectious Diseases',
+'Interventional Cardiology',
+'Languages',
+'Leukemia and Lymphoma',
+'Linguistics',
+'Literature',
+'Lung Cancer',
+'Lysosomal Storage Disorders',
+'Management',
+'Marine & Ocean Science',
+'Materials Engineering',
+'Maternal and Child Health',
+'Maternal & Child Nutrition',
+'Maternal-Fetal Medicine',
+'Mathematics',
+'Mechanical Engineering',
+'Medical Device Research',
+'Medical Education and Training',
+'Medical Humanities',
+'Medical Law and Health Policy',
+'Melanoma',
+'Mental Health Nursing',
+'Metabolomics',
+'Microbiology',
+'Midwifery',
+'Media',
+'Molecular Biology',
+'Molecular Genetic Pathology',
+'Molecular Nutrition',
+'Movement Disorders',
+'Multiple Sclerosis (MS)',
+'Multiple Sclerosis and Neuroimmunology',
+'Muscular Dystrophies',
+'Nanotechnology',
+'Nephrology (Kidneys)',
+'Neonatology',
+'Neurobiology',
+'Neurocritical Care',
+'Neuroendocrinology',
+'Neurological diseases',
+'Neurology',
+'Neuromuscular Medicine',
+'Neuropathology',
+'Neuroscience',
+'Neurosurgery',
+'Noncommunicable Diseases (NCDs) Prevention',
+'Nuclear Engineering',
+'Nurse Practitioner Roles',
+'Nutrigenomics',
+'Nutrition',
+'Nutrition Education',
+'Nutritional Biochemistry',
+'Obesity and Metabolic Syndrome',
+'Occupational Health',
+'One Health (human-animal-environment interface)',
+'Oncology Nursing',
+'Oral and Maxillofacial Surgery',
+'Organoids',
+'Organs-on-Chips',
+'Orthodontics',
+'Orthopedic Surgery',
+'Palliative and End-of-Life Care',
+'Pancreatic Cancer',
+'Parkinson\'s Disease',
+'Patient Safety and Quality Improvement',
+'Pediatric Cardiology',
+'Pediatric Dentistry',
+'Pediatric Endocrinology',
+'Pediatric Infectious Diseases',
+'Pediatric Neurology',
+'Pediatric Oncology',
+'Pediatric Surgery',
+'Periodontics',
+'Pharmacogenomics',
+'Pharmacological Regeneration',
+'Pharmacology',
+'Philosophy',
+'Physiology',
+'Physics',
+'Plastic and Reconstructive Surgery',
+'Prostate Cancer',
+'Proteomics',
+'Prosthodontics',
+'Psychology of Eating',
+'Public Health Nutrition',
+'Pulmonology (Lungs)',
+'Rare Disease Research (general category)',
+'Rare Diseases',
+'Refugee and Migrant Health',
+'Regenerative Medicine',
+'Rehabilitation & Biointegration',
+'Rehabilitation Technologies',
+'Reproductive Endocrinology and Infertility',
+'Respiratory diseases',
+'Rheumatology (Joints and Autoimmune Diseases)',
+'Schizophrenia Research',
+'Sickle Cell Disease',
+'Social Studies',
+'Software Engineering',
+'Spatial Diversity',
+'Species Diversity',
+'Sports & Exercise Nutrition',
+'Stem Cell Biology',
+'Stem Cell Therapy',
+'Stroke',
+'Structural Biology',
+'Structural Diversity',
+'Surgical Oncology',
+'Taxonomic Diversity',
+'Telemedicine / Telehealth',
+'Temporal Diversity',
+'Thyroid abnormalities',
+'Tissue Engineering',
+'Transplant Surgery',
+'Urogynecology',
+'Vaccine Development',
+'Vascular Neurology',
+'Other'
+];
+
+  const keywordOptions = [
+'Big Data',
+'Bioinformatics',
+'Biomedical Engineering',
+'Blockchain',
+'Clinical Research',
+'Cloud Computing',
+'Computer Vision',
+'Deep Learning',
+'Drug Discovery',
+'Epidemiology',
+'Genomics',
+'IoT',
+'Medical Imaging',
+'Neural Networks',
+'NLP',
+'Proteomics',
+'Public Health',
+'Quantum Computing',
+'Robotics',
+    'Other'
+  ];
+
+  const researchRoleOptions = [
+'Co-Investigator',
+'Co-Principal Investigator',
+'Graduate Researcher',
+'Postdoc',
+'Principal Investigator',
+'Research Assistant',
+'Research Associate',
+'Research Technician',
+'Undergraduate Researcher'
+  ];
+
+  const whatOptions = [
+'Animal Models',
+'Animal Samples',
+'Approved Grant',
+'Clinical Experience',
+'Equipments',
+'Experiments',
+'Graduate Students',
+'Grant Application',
+'Human Samples',
+'Idea',
+'Manuscripts',
+'Molecular Experience',
+'Proposal',
+'Research Reports',
+'Results Analysis',
+'Statistics',
+'Student Supervision',
+'Technical Experience',
+    'Other'
+  ];
+
+  const addKeyword = () => {
+    if (selectedKeyword && !formData.keywords.includes(selectedKeyword)) {
+      onChange('keywords', [...formData.keywords, selectedKeyword]);
+      setSelectedKeyword('');
+    }
+  };
+
+  const removeKeyword = (keyword: string) => {
+    onChange('keywords', formData.keywords.filter(k => k !== keyword));
+  };
+
+  const addRole = () => {
+    if (selectedRole && !formData.researchRoles.includes(selectedRole)) {
+      onChange('researchRoles', [...formData.researchRoles, selectedRole]);
+      setSelectedRole('');
+    }
+  };
+
+  const removeRole = (role: string) => {
+    onChange('researchRoles', formData.researchRoles.filter(r => r !== role));
+  };
+
+  const addSpecialization = () => {
+    if (selectedSpecialization && !formData.specializationKeywords.includes(selectedSpecialization)) {
+      onChange('specializationKeywords', [...formData.specializationKeywords, selectedSpecialization]);
+      setSelectedSpecialization('');
+    }
+  };
+
+  const removeSpecialization = (specialization: string) => {
+    onChange('specializationKeywords', formData.specializationKeywords.filter(s => s !== specialization));
+  };
+
+  const handlePrimaryAreaChange = (value: string) => {
+    if (value === 'Other') {
+      setShowCustomPrimary(true);
+      setCustomPrimaryArea('');
+    } else {
+      setShowCustomPrimary(false);
+      onChange('primaryResearchArea', value);
+    }
+  };
+
+  const handleSecondaryAreaChange = (value: string) => {
+    if (value === 'Other') {
+      setShowCustomSecondary(true);
+      setCustomSecondaryArea('');
+    } else {
+      setShowCustomSecondary(false);
+      onChange('secondaryResearchArea', value);
+    }
+  };
+
+  const handleSpecializationChange = (value: string) => {
+    if (value === 'Other') {
+      setShowCustomSpecialization(true);
+      setCustomSpecialization('');
+    } else {
+      setShowCustomSpecialization(false);
+      setSelectedSpecialization(value);
+    }
+  };
+
+  const addWhatIHave = () => {
+    if (selectedWhatIHave && !formData.whatIHave.includes(selectedWhatIHave)) {
+      onChange('whatIHave', [...formData.whatIHave, selectedWhatIHave]);
+      setSelectedWhatIHave('');
+    }
+  };
+
+  const removeWhatIHave = (item: string) => {
+    onChange('whatIHave', formData.whatIHave.filter(h => h !== item));
+  };
+
+  const handleWhatIHaveChange = (value: string) => {
+    if (value === 'Other') {
+      setShowCustomWhatIHave(true);
+      setCustomWhatIHave('');
+    } else {
+      setShowCustomWhatIHave(false);
+      setSelectedWhatIHave(value);
+    }
+  };
+
+  const addWhatINeed = () => {
+    if (selectedWhatINeed && !formData.whatINeed.includes(selectedWhatINeed)) {
+      onChange('whatINeed', [...formData.whatINeed, selectedWhatINeed]);
+      setSelectedWhatINeed('');
+    }
+  };
+
+  const removeWhatINeed = (item: string) => {
+    onChange('whatINeed', formData.whatINeed.filter(n => n !== item));
+  };
+
+  const handleWhatINeedChange = (value: string) => {
+    if (value === 'Other') {
+      setShowCustomWhatINeed(true);
+      setCustomWhatINeed('');
+    } else {
+      setShowCustomWhatINeed(false);
+      setSelectedWhatINeed(value);
+    }
+  };
+
+  const isFormValid = () => {
+    const valid = (
+      formData.experienceYears.trim() !== '' &&
+      formData.primaryResearchArea.trim() !== '' &&
+      formData.secondaryResearchArea.trim() !== '' &&
+      formData.specializationKeywords.length > 0 &&
+      formData.researchRoles.length > 0 &&
+      formData.whatIHave.length > 0 &&
+      formData.whatINeed.length > 0
+    );
+    
+    // Debug logging
+    console.log('Form validation:', {
+      experienceYears: formData.experienceYears.trim() !== '',
+      primaryResearchArea: formData.primaryResearchArea.trim() !== '',
+      secondaryResearchArea: formData.secondaryResearchArea.trim() !== '',
+      specializationKeywords: formData.specializationKeywords.length > 0,
+      researchRoles: formData.researchRoles.length > 0,
+      whatIHave: formData.whatIHave.length > 0,
+      whatINeed: formData.whatINeed.length > 0,
+      overall: valid
+    });
+    
+    return valid;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isFormValid()) {
+      onFinish();
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Tell us more about you<br />
+          to help you finding collaborators
+        </h2>
+        <p className="text-lg text-muted-foreground">Research Information</p>
+      </div>
+
+      <Progress value={100} className="w-full" />
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="experienceYears">Research Experience in Years <span className="text-destructive">*</span></Label>
+          <Select 
+            value={formData.experienceYears} 
+            onValueChange={(value) => onChange('experienceYears', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select experience range" />
+            </SelectTrigger>
+            <SelectContent>
+              {experienceOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="primaryResearchArea">Primary Research Area <span className="text-destructive">*</span></Label>
+          {showCustomPrimary ? (
+            <Input
+              value={customPrimaryArea}
+              onChange={(e) => {
+                setCustomPrimaryArea(e.target.value);
+                onChange('primaryResearchArea', e.target.value);
+              }}
+              placeholder="Enter your primary research areas"
+              required
+            />
+          ) : (
+            <Select 
+              value={formData.primaryResearchArea} 
+              onValueChange={handlePrimaryAreaChange}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select primary research area" />
+              </SelectTrigger>
+              <SelectContent>
+                {researchAreas.map((area) => (
+                  <SelectItem key={area} value={area}>
+                    {area}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="secondaryResearchArea">Secondary Research Area <span className="text-destructive">*</span></Label>
+          {showCustomSecondary ? (
+            <Input
+              value={customSecondaryArea}
+              onChange={(e) => {
+                setCustomSecondaryArea(e.target.value);
+                onChange('secondaryResearchArea', e.target.value);
+              }}
+              placeholder="Enter your secondary research area"
+              required
+            />
+          ) : (
+            <Select 
+              value={formData.secondaryResearchArea} 
+              onValueChange={handleSecondaryAreaChange}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select secondary research area" />
+              </SelectTrigger>
+              <SelectContent>
+                {researchAreas.map((area) => (
+                  <SelectItem key={area} value={area}>
+                    {area}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label>Specialization/Keywords <span className="text-destructive">*</span></Label>
+          <div className="flex gap-2">
+            {showCustomSpecialization ? (
+              <Input
+                value={customSpecialization}
+                onChange={(e) => setCustomSpecialization(e.target.value)}
+                placeholder="Enter specialization keyword"
+                className="flex-1"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (customSpecialization && !formData.specializationKeywords.includes(customSpecialization)) {
+                      onChange('specializationKeywords', [...formData.specializationKeywords, customSpecialization]);
+                      setCustomSpecialization('');
+                      setShowCustomSpecialization(false);
+                    }
+                  }
+                }}
+              />
+            ) : (
+              <Select value={selectedSpecialization} onValueChange={handleSpecializationChange}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Select specialization" />
+                </SelectTrigger>
+                <SelectContent>
+                  {keywordOptions.map((keyword) => (
+                    <SelectItem key={keyword} value={keyword}>
+                      {keyword}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            <Button 
+              type="button" 
+              onClick={showCustomSpecialization ? 
+                () => {
+                  if (customSpecialization && !formData.specializationKeywords.includes(customSpecialization)) {
+                    onChange('specializationKeywords', [...formData.specializationKeywords, customSpecialization]);
+                    setCustomSpecialization('');
+                    setShowCustomSpecialization(false);
+                  }
+                } : 
+                addSpecialization
+              }
+              disabled={showCustomSpecialization ? !customSpecialization : !selectedSpecialization}
+            >
+              Add
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {formData.specializationKeywords.map((specialization, index) => (
+              <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                {specialization}
+                <X 
+                  className="h-3 w-3 cursor-pointer" 
+                  onClick={() => removeSpecialization(specialization)}
+                />
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Research Role <span className="text-destructive">*</span></Label>
+          <div className="flex gap-2">
+            <Select value={selectedRole} onValueChange={setSelectedRole}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Select research role" />
+              </SelectTrigger>
+              <SelectContent>
+                {researchRoleOptions.map((role) => (
+                  <SelectItem key={role} value={role}>
+                    {role}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button 
+              type="button" 
+              onClick={addRole}
+              disabled={!selectedRole}
+            >
+              Add
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {formData.researchRoles.map((role, index) => (
+              <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                {role}
+                <X 
+                  className="h-3 w-3 cursor-pointer" 
+                  onClick={() => removeRole(role)}
+                />
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>What I Have <span className="text-destructive">*</span></Label>
+          <div className="flex gap-2">
+            {showCustomWhatIHave ? (
+              <Input
+                value={customWhatIHave}
+                onChange={(e) => setCustomWhatIHave(e.target.value)}
+                placeholder="Enter what you have"
+                className="flex-1"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (customWhatIHave && !formData.whatIHave.includes(customWhatIHave)) {
+                      onChange('whatIHave', [...formData.whatIHave, customWhatIHave]);
+                      setCustomWhatIHave('');
+                      setShowCustomWhatIHave(false);
+                    }
+                  }
+                }}
+              />
+            ) : (
+              <Select value={selectedWhatIHave} onValueChange={handleWhatIHaveChange}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Select what you have" />
+                </SelectTrigger>
+                <SelectContent>
+                  {whatOptions.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            <Button 
+              type="button" 
+              onClick={showCustomWhatIHave ? 
+                () => {
+                  if (customWhatIHave && !formData.whatIHave.includes(customWhatIHave)) {
+                    onChange('whatIHave', [...formData.whatIHave, customWhatIHave]);
+                    setCustomWhatIHave('');
+                    setShowCustomWhatIHave(false);
+                  }
+                } : 
+                addWhatIHave
+              }
+              disabled={showCustomWhatIHave ? !customWhatIHave : !selectedWhatIHave}
+            >
+              Add
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {formData.whatIHave.map((item, index) => (
+              <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                {item}
+                <X 
+                  className="h-3 w-3 cursor-pointer" 
+                  onClick={() => removeWhatIHave(item)}
+                />
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>What I Need <span className="text-destructive">*</span></Label>
+          <div className="flex gap-2">
+            {showCustomWhatINeed ? (
+              <Input
+                value={customWhatINeed}
+                onChange={(e) => setCustomWhatINeed(e.target.value)}
+                placeholder="Enter what you need"
+                className="flex-1"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (customWhatINeed && !formData.whatINeed.includes(customWhatINeed)) {
+                      onChange('whatINeed', [...formData.whatINeed, customWhatINeed]);
+                      setCustomWhatINeed('');
+                      setShowCustomWhatINeed(false);
+                    }
+                  }
+                }}
+              />
+            ) : (
+              <Select value={selectedWhatINeed} onValueChange={handleWhatINeedChange}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Select what you need" />
+                </SelectTrigger>
+                <SelectContent>
+                  {whatOptions.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            <Button 
+              type="button" 
+              onClick={showCustomWhatINeed ? 
+                () => {
+                  if (customWhatINeed && !formData.whatINeed.includes(customWhatINeed)) {
+                    onChange('whatINeed', [...formData.whatINeed, customWhatINeed]);
+                    setCustomWhatINeed('');
+                    setShowCustomWhatINeed(false);
+                  }
+                } : 
+                addWhatINeed
+              }
+              disabled={showCustomWhatINeed ? !customWhatINeed : !selectedWhatINeed}
+            >
+              Add
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {formData.whatINeed.map((item, index) => (
+              <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                {item}
+                <X 
+                  className="h-3 w-3 cursor-pointer" 
+                  onClick={() => removeWhatINeed(item)}
+                />
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex gap-4">
+          <Button type="button" variant="outline" onClick={onBack} className="flex-1">
+            Back
+          </Button>
+          <Button type="submit" className="flex-1" disabled={loading || !isFormValid()}>
+            {loading ? 'Creating Account...' : 'Finish'}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default SignupStep3;
